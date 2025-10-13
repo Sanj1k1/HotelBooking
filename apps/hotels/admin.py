@@ -12,11 +12,12 @@ from apps.hotels.models import Hotel,Room,RoomType
 @register(Room)
 class RoomAdmin(ModelAdmin):
     """
+    Role admin configuration class.
     """
     list_display = (
         'id',
         'number',
-        'description',
+        'price_per_night',
         'is_available',
     )
     
@@ -37,6 +38,7 @@ class RoomAdmin(ModelAdmin):
 @register(RoomType)
 class RoomTypeAdmin(ModelAdmin):
     """
+    RoomType admin configuration class.
     """
     list_display = (
         'id',
@@ -54,10 +56,13 @@ class RoomTypeAdmin(ModelAdmin):
 @register(Hotel)
 class HotelAdmin(ModelAdmin):
     """
+    Hotel admin configuration class.
     """
     list_display = (
         "id",
+        'name',
         "address",
+        'rating',
     )
     
     list_per_page = 20

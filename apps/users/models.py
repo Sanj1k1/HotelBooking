@@ -5,6 +5,9 @@ from django.db.models import Model,CharField,ManyToManyField
 from django.contrib.auth.models import AbstractUser,Group,Permission
 
 class User(AbstractUser):
+    """
+    User database (table) model.
+    """
     FIRSTLASTNAMES_MAX_LENGTH = 100
     first_name = CharField(max_length=FIRSTLASTNAMES_MAX_LENGTH,blank=False)
     last_name = CharField(max_length=FIRSTLASTNAMES_MAX_LENGTH,blank=False)
