@@ -2,69 +2,69 @@ from django.contrib import admin
 from .models import User, Room, Booking
 
 
-@admin.register(User)
-class UserAdmin(admin.ModelAdmin):
-    """
-    Django admin configuration for the User model.
+# @admin.register(User)
+# class UserAdmin(admin.ModelAdmin):
+#     """
+#     Django admin configuration for the User model.
 
-    Defines how user records are displayed, searched, and paginated
-    within the Django admin interface.
-    """
+#     Defines how user records are displayed, searched, and paginated
+#     within the Django admin interface.
+#     """
 
-    list_display: tuple[str, ...] = (
-        "id",
-        "first_name",
-        "last_name",
-        "email",
-        "phone",
-    )
+#     list_display: tuple[str, ...] = (
+#         "id",
+#         "first_name",
+#         "last_name",
+#         "email",
+#         "phone",
+#     )
 
-    list_display_links: tuple[str, ...] = (
-        "id",
-        "first_name",
-    )
+#     list_display_links: tuple[str, ...] = (
+#         "id",
+#         "first_name",
+#     )
 
-    search_fields: tuple[str, ...] = (
-        "first_name",
-        "last_name",
-        "email",
-        "phone",
-    )
+#     search_fields: tuple[str, ...] = (
+#         "first_name",
+#         "last_name",
+#         "email",
+#         "phone",
+#     )
 
-    list_per_page: int = 50
+#     list_per_page: int = 50
 
 
-@admin.register(Room)
-class RoomAdmin(admin.ModelAdmin):
-    """
-    Django admin configuration for the Room model.
+# @admin.register(Room)
+# class RoomAdmin(admin.ModelAdmin):
+#     """
+#     Django admin configuration for the Room model.
 
-    Controls how hotel room data (number, price, and availability)
-    is displayed and managed through the Django admin panel.
-    """
+#     Controls how hotel room data (number, price, and availability)
+#     is displayed and managed through the Django admin panel.
+#     """
 
-    list_display: tuple[str, ...] = (
-        "id",
-        "number",
-        "price_per_night",
-        "is_available",
-    )
+#     list_display: tuple[str, ...] = (
+#         "id",
+#         "number",
+#         "price_per_night",
+#         "is_available",
+#     )
 
-    list_display_links: tuple[str, ...] = (
-        "id",
-        "number",
-    )
+#     list_display_links: tuple[str, ...] = (
+#         "id",
+#         "number",
+#     )
 
-    list_filter: tuple[str, ...] = (
-        "is_available",
-    )
+#     list_filter: tuple[str, ...] = (
+#         "is_available",
+#     )
 
-    search_fields: tuple[str, ...] = (
-        "number",
-        "description",
-    )
+#     search_fields: tuple[str, ...] = (
+#         "number",
+#         "description",
+#     )
 
-    list_per_page: int = 50
+#     list_per_page: int = 50
 
 
 @admin.register(Booking)

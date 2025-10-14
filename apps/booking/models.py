@@ -2,44 +2,44 @@ from django.db import models
 from django.utils import timezone
 
 
-class User(models.Model):
-    """
-    Represents a user who can book rooms.
+# class User(models.Model):
+#     """
+#     Represents a user who can book rooms.
 
-    Attributes:
-        first_name (str): The user's first name.
-        last_name (str): The user's last name.
-        email (str): The user's unique email address.
-        phone (str): The user's phone number.
-    """
-    first_name: str = models.CharField(max_length=100)
-    last_name: str = models.CharField(max_length=100)
-    email: str = models.EmailField(unique=True)
-    phone: str = models.CharField(max_length=20)
+#     Attributes:
+#         first_name (str): The user's first name.
+#         last_name (str): The user's last name.
+#         email (str): The user's unique email address.
+#         phone (str): The user's phone number.
+#     """
+#     first_name: str = models.CharField(max_length=100)
+#     last_name: str = models.CharField(max_length=100)
+#     email: str = models.EmailField(unique=True)
+#     phone: str = models.CharField(max_length=20)
 
-    def __str__(self) -> str:
-        """Return the user's full name."""
-        return f"{self.first_name} {self.last_name}"
+#     def __str__(self) -> str:
+#         """Return the user's full name."""
+#         return f"{self.first_name} {self.last_name}"
 
 
-class Room(models.Model):
-    """
-    Represents a hotel room that can be booked.
+# class Room(models.Model):
+#     """
+#     Represents a hotel room that can be booked.
 
-    Attributes:
-        number (int): The room number (unique).
-        price_per_night (int): Price per night for the room.
-        description (str): Description of the room.
-        is_available (bool): Availability status of the room.
-    """
-    number: int = models.IntegerField(unique=True)
-    price_per_night: int = models.IntegerField()
-    description: str = models.TextField()
-    is_available: bool = models.BooleanField(default=True)
+#     Attributes:
+#         number (int): The room number (unique).
+#         price_per_night (int): Price per night for the room.
+#         description (str): Description of the room.
+#         is_available (bool): Availability status of the room.
+#     """
+#     number: int = models.IntegerField(unique=True)
+#     price_per_night: int = models.IntegerField()
+#     description: str = models.TextField()
+#     is_available: bool = models.BooleanField(default=True)
 
-    def __str__(self) -> str:
-        """Return the room number as a string."""
-        return f"Room {self.number}"
+#     def __str__(self) -> str:
+#         """Return the room number as a string."""
+#         return f"Room {self.number}"
 
 
 class Booking(models.Model):
