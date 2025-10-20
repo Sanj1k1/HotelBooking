@@ -9,12 +9,23 @@ class PaymentAdmin(admin.ModelAdmin):
     This class defines how Payment objects are displayed and managed
     in the Django admin interface.
     """
-    list_display: tuple[str, ...] = ("user", "amount", "payment_method", "status", "created_at")
-    list_filter: tuple[str, ...] = ("status", "payment_method")
-    search_fields: tuple[str, ...] = ("user__username",)
-    ordering: tuple[str, ...] = ("-created_at",)
+    list_display: tuple[str, ...] = (
+        "user", 
+        "amount", 
+        "payment_method", 
+        "status", 
+        "created_at"
+    )
+    list_filter: tuple[str, ...] = (
+        "status", 
+        "payment_method"
+    )
+    search_fields: tuple[str, ...] = (
+        "user__username",
+    )
+    ordering: tuple[str, ...] = (
+        "-created_at",
+    )
 
 
-# Register the Payment model in the admin site
 admin.site.register(Payment, PaymentAdmin)
-

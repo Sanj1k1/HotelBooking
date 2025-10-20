@@ -2,6 +2,7 @@
 from datetime import datetime
 from typing import Any
 from random import uniform,choice
+
 #Django moduesl
 from django.core.management.base import BaseCommand
 from django.db.models import QuerySet
@@ -62,7 +63,7 @@ class Command(BaseCommand):
         i:int
         
         for i in self.HOTELS:
-            name:str = f'{i['name']}'
+            name:str = f"{i['name']}"
             address: str = f"{i["address"]}"
             rating: int = round(uniform(3.0,5.0),1)
             created_hotels.append(
@@ -85,7 +86,7 @@ class Command(BaseCommand):
         """
         Generate roomtype testing data for hotels.
         """
-        existing_count = Room.objects.count()
+        existing_count = RoomType.objects.count()
         if existing_count == 0:
             RoomType.objects.bulk_create(
                 [RoomType(**roomtype) for roomtype in self.DEFAULT_ROOM_TYPES],
@@ -100,7 +101,7 @@ class Command(BaseCommand):
         Generate rooms testing data for hotels.
         """
         hotels:Hotel = Hotel.objects.all()
-        room_types:Room = list(RoomType.objects.all())
+        room_types:list[RoomType] = list(RoomType.objects.all())
         i:int 
         total_rooms:int = 0
         for hotel in hotels:

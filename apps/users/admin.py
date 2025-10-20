@@ -21,4 +21,10 @@ class UserAdmin(ModelAdmin):
         "phone",
     )
     
+    search_fields = (
+        "id",
+        "first_name",
+        "phone",
+    )
+    
     list_per_page = 20

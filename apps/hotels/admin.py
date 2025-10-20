@@ -34,6 +34,7 @@ class RoomAdmin(ModelAdmin):
         "number",
     )
     
+
     
 @register(RoomType)
 class RoomTypeAdmin(ModelAdmin):
@@ -50,6 +51,10 @@ class RoomTypeAdmin(ModelAdmin):
     
     search_fields = (
         "id",
+        "capacity",
+    )
+    
+    ordering = (
         "capacity",
     )
     
@@ -70,3 +75,9 @@ class HotelAdmin(ModelAdmin):
     search_fields = (
         "address",
     )
+    
+    formfield_overrides = {
+        models.TextField: {
+            "widget":WysiwygWidget
+        }
+    }

@@ -1,21 +1,17 @@
-from django.db import models
-from django.contrib.auth.models import User
+#Project Modules
 from decimal import Decimal
 from typing import Any
+
+#Django modules
+from django.db import models
+
+#Project Modules
+from apps.users.models import User
 
 
 class Payment(models.Model):
     """
     Represents a payment transaction made by a user.
-
-    Attributes:
-        user (User): The user who made the payment.
-        amount (Decimal): The amount of the payment.
-        payment_method (str): The method used for payment 
-            (e.g., credit card, PayPal, or cash).
-        status (str): The current status of the payment 
-            (e.g., pending, completed, or failed).
-        created_at (datetime): The timestamp when the payment was created.
     """
 
     PAYMENT_METHODS: list[tuple[str, str]] = [
@@ -30,11 +26,11 @@ class Payment(models.Model):
         ('failed', 'Failed'),
     ]
 
-    user: User = models.ForeignKey(User, on_delete=models.CASCADE)
-    amount: Decimal = models.DecimalField(max_digits=10, decimal_places=2)
-    payment_method: str = models.CharField(max_length=20, choices=PAYMENT_METHODS)
-    status: str = models.CharField(max_length=20, choices=STATUSES)
-    created_at: Any = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    payment_method= models.CharField(max_length=20, choices=PAYMENT_METHODS)
+    status = models.CharField(max_length=20, choices=STATUSES)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self) -> str:
         """Return a readable string representation of the payment."""

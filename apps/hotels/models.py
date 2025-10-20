@@ -9,16 +9,22 @@ from django.db.models import (
     BooleanField,
     ForeignKey,
     CASCADE,
-    )
+)
 
-# Create your models here.
+#Project Modules
+
+
 class Hotel(Model):
     """
     Hotel database (table) model.
     """
     name = CharField(max_length=100)
     address = CharField(max_length=100)
-    rating = IntegerField()
+    rating = IntegerField(default=3)
+    description = TextField(blank=True,null=True)
+    
+    def __str__(self):
+        return self.name
     
 class RoomType(Model):
     """
@@ -27,14 +33,19 @@ class RoomType(Model):
     name = CharField(max_length=50)
     capacity = IntegerField()
     
+    def __str__(self):
+        return  f"{self.name} до {self.capacity} человек"
+    
 class Room(Model):
     """
     Room database (table) model.
     """
     number = IntegerField(unique=True)
     price_per_night = IntegerField()
-    description = TextField()
+    description = TextField(blank=True,null=True)
     is_available = BooleanField(default = True)
     hotel = ForeignKey(to=Hotel,on_delete=CASCADE)
     RoomType = ForeignKey(to=RoomType,on_delete=CASCADE)
     
+    def __str__(self):
+        return f" Номер {self.number} - {self.hotel.name}"

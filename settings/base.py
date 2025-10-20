@@ -1,6 +1,10 @@
 #Python modules
 import os
 
+#Other modules
+from django.urls import reverse_lazy
+from django.utils.translation import gettext_lazy as _
+
 #Project modules
 from settings.conf import * #noqa:F403
 
@@ -12,7 +16,7 @@ ROOT_URLCONF = 'settings.urls'
 WSGI_APPLICATION = 'settings.wsgi.application'
 ASGI_APPLICATION = "settings.asgi.application"
 
-
+AUTH_USER_MODEL = 'users.User'
 # ----------------------------------------------
 # Apps 
 #
@@ -37,7 +41,8 @@ DJANGO_AND_THIRD_PARTY_APPS = [
 PROJECT_APPS = [ 
     "apps.hotels",
     "apps.users", 
-    'apps.payment'             
+    'apps.payment',            
+    'apps.booking',  
 ]
 
 INSTALLED_APPS = DJANGO_AND_THIRD_PARTY_APPS + PROJECT_APPS
@@ -104,3 +109,14 @@ MEDIA_URL = "media/"
 MEDIA_ROOT = os.path.join(BASE_DIR,'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+#Unfold
+UNFOLD = {
+    "SITE_DROPDOWN": [
+        {
+            "icon": "diamond",
+            "title": _("My site"),
+            "link": reverse_lazy("admin:index"),
+        },
+    ]
+}
