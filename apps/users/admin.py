@@ -19,6 +19,7 @@ class UserAdmin(ModelAdmin):
         "last_name",
         "email",
         "phone",
+        'role',
     )
     
     search_fields = (

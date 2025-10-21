@@ -1,7 +1,11 @@
+
+#Django modules
 from django.contrib import admin
+
+#Project modules
 from .models import Payment
 
-
+@admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
     """
     Admin configuration for the Payment model.
@@ -28,4 +32,3 @@ class PaymentAdmin(admin.ModelAdmin):
     )
 
 
-admin.site.register(Payment, PaymentAdmin)
