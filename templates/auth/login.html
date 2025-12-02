@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<h1>Login with Phone</h1>
+
+<form id="loginForm">
+    <div class="form-group">
+        <label for="phone">Phone Number</label>
+        <input type="text" id="phone" name="phone" required placeholder="+77001234567">
+    </div>
+    
+    <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required>
+    </div>
+    
+    <button type="submit">Login</button>
+</form>
+
+<div id="loginResult"></div>
+
+<script>
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const loginData = {
+            phone: document.getElementById('phone').value,
+            password: document.getElementById('password').value,
+        };
+        
+        try {
+            const response = await fetch('/api/auth/token/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(loginData)
+            });
+            
+            const result = await response.json();
+            
+            const resultDiv = document.getElementById('loginResult');
+            if (response.ok) {
+                // Save tokens to localStorage
+                localStorage.setItem('access_token', result.access);
+                localStorage.setItem('refresh_token', result.refresh);
+                
+                resultDiv.innerHTML = `
+                    <div class="message success">
+                        Login successful! Token received.
+                    </div>
+                    <div class="api-response">
+                        Access Token (first 50 chars): ${result.access.substring(0, 50)}...
+                        <br><br>
+                        Full Response:
+                        ${JSON.stringify({
+                            access: result.access.substring(0, 50) + '...',
+                            refresh: result.refresh.substring(0, 50) + '...',
+                        }, null, 2)}
+                    </div>
+                    <p>Token saved to localStorage. You can now access protected endpoints.</p>
+                    <p><a href="{% url 'profile_page' %}">Go to Profile</a> to test protected API.</p>
+                `;
+                
+                // Add logout button
+                setTimeout(() => {
+                    window.location.href = "{% url 'home' %}";
+                }, 2000);
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="message error">
+                        Login failed!
+                    </div>
+                    <div class="api-response">
+                        ${JSON.stringify(result, null, 2)}
+                    </div>
+                `;
+            }
+        } catch (error) {
+            document.getElementById('loginResult').innerHTML = `
+                <div class="message error">
+                    Error: ${error.message}
+                </div>
+            `;
+        }
+    });
+</script>
+{% endblock %}

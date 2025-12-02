@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<h1>Register New User</h1>
+
+<form id="registerForm">
+    <div class="form-group">
+        <label for="phone">Phone Number*</label>
+        <input type="text" id="phone" name="phone" required placeholder="+77001234567">
+    </div>
+    
+    <div class="form-group">
+        <label for="email">Email*</label>
+        <input type="email" id="email" name="email" required placeholder="user@example.com">
+    </div>
+    
+    <div class="form-group">
+        <label for="first_name">First Name*</label>
+        <input type="text" id="first_name" name="first_name" required>
+    </div>
+    
+    <div class="form-group">
+        <label for="last_name">Last Name*</label>
+        <input type="text" id="last_name" name="last_name" required>
+    </div>
+    
+    <div class="form-group">
+        <label for="password">Password*</label>
+        <input type="password" id="password" name="password" required>
+    </div>
+    
+    <div class="form-group">
+        <label for="password2">Confirm Password*</label>
+        <input type="password" id="password2" name="password2" required>
+    </div>
+    
+    <button type="submit">Register</button>
+</form>
+
+<div id="registerResult"></div>
+
+<script>
+    document.getElementById('registerForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = {
+            phone: document.getElementById('phone').value,
+            email: document.getElementById('email').value,
+            first_name: document.getElementById('first_name').value,
+            last_name: document.getElementById('last_name').value,
+            password: document.getElementById('password').value,
+            password2: document.getElementById('password2').value,
+        };
+        
+        try {
+            const response = await fetch('/api/auth/register/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            });
+            
+            const result = await response.json();
+            
+            const resultDiv = document.getElementById('registerResult');
+            if (response.ok) {
+                resultDiv.innerHTML = `
+                    <div class="message success">
+                        Registration successful! User created: ${result.user.phone}
+                    </div>
+                    <div class="api-response">
+                        ${JSON.stringify(result, null, 2)}
+                    </div>
+                    <p>Now you can <a href="{% url 'login_page' %}">login</a> with your phone and password.</p>
+                `;
+                document.getElementById('registerForm').reset();
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="message error">
+                        Registration failed!
+                    </div>
+                    <div class="api-response">
+                        ${JSON.stringify(result, null, 2)}
+                    </div>
+                `;
+            }
+        } catch (error) {
+            document.getElementById('registerResult').innerHTML = `
+                <div class="message error">
+                    Error: ${error.message}
+                </div>
+            `;
+        }
+    });
+</script>
+{% endblock %}

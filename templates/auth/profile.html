@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<h1>My Profile</h1>
+
+<div id="profileInfo">
+    {% if user.is_authenticated %}
+        <div class="api-response">
+            <h3>User Profile (Django Auth)</h3>
+            <p><strong>Username:</strong> {{ user.phone }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            <p><strong>Name:</strong> {{ user.first_name }} {{ user.last_name }}</p>
+            <p><strong>Role:</strong> {{ user.role }}</p>
+        </div>
+    {% else %}
+        <div class="message info">
+            <p>You are not logged in via Django session.</p>
+            <p>Please use JWT token authentication below.</p>
+        </div>
+    {% endif %}
+</div>
+
+<div class="api-actions">
+    <h2>JWT API Actions</h2>
+    <button onclick="loadProfileViaAPI()">Load Profile via API</button>
+    <button onclick="refreshToken()">Refresh Token</button>
+    <button onclick="verifyToken()">Verify Token</button>
+    <button onclick="getMyBookings()">Get My Bookings</button>
+    <button onclick="logout()" style="background: #dc3545;">Logout</button>
+</div>
+
+<div id="apiResult"></div>
+
+<script>
+    // Load profile via API on page load
+    document.addEventListener('DOMContentLoaded', async function() {
+        // Try to load via API if token exists
+        const token = localStorage.getItem('access_token');
+        if (token) {
+            await loadProfileViaAPI();
+        }
+    });
+    
+    async function loadProfileViaAPI() {
+        try {
+            const profile = await callApi('users/me/', 'GET');
+            document.getElementById('profileInfo').innerHTML = `
+                <div class="api-response">
+                    <h3>User Profile (JWT API)</h3>
+                    <p><strong>Phone:</strong> ${profile.phone}</p>
+                    <p><strong>Email:</strong> ${profile.email}</p>
+                    <p><strong>Name:</strong> ${profile.first_name} ${profile.last_name}</p>
+                    <p><strong>Role:</strong> ${profile.role}</p>
+                    <p><strong>Date Joined:</strong> ${new Date(profile.date_joined).toLocaleString()}</p>
+                </div>
+            `;
+        } catch (error) {
+            document.getElementById('profileInfo').innerHTML = `
+                <div class="message error">
+                    Error loading profile via API: ${error.message}
+                </div>
+                <p>You need to <a href="{% url 'login_page' %}">login</a> first and get JWT token.</p>
+            `;
+        }
+    }
+    
+    // ... остальные функции без изменений ...
+</script>
+{% endblock %}
