@@ -1,8 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
 from django.http import JsonResponse
-from django.views.generic import TemplateView
-from apps.core import views  # Импортируем views
 
 
 def api_home(request):
@@ -12,8 +10,10 @@ def api_home(request):
         'endpoints': {
             'auth': '/api/auth/',
             'users': '/api/users/',
+            'hotels': '/api/hotels/',
+            'rooms': '/api/rooms/',
+            'room-types': '/api/room-types/',
             'admin': '/admin/',
-            'docs': 'Coming soon...',
         }
     })
 
@@ -24,14 +24,11 @@ urlpatterns = [
     
     # API endpoints
     path('api/auth/', include('apps.authentication.urls')),
-    path('api/', include('apps.users.urls')),
-    path('', include('apps.core.urls')),
+    path('api/users/', include('apps.users.urls')),
+    path('api/', include('apps.hotels.urls')),
     
     # Frontend pages
-    path('', views.home_view, name='home'),
-    path('register/', views.register_view, name='register_page'),
-    path('login/', views.login_view, name='login_page'),
-    path('profile/', views.profile_view, name='profile_page'),
+    path('', include('apps.core.urls')),
     
     # API root
     path('api/', api_home, name='api_root'),

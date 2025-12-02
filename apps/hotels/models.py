@@ -1,6 +1,4 @@
 #Python modules + Third party modules
-
-#Djago modules
 from django.db.models import (
     Model,
     CharField,
@@ -11,8 +9,6 @@ from django.db.models import (
     CASCADE,
 )
 
-#Project Modules
-
 
 class Hotel(Model):
     """
@@ -21,11 +17,14 @@ class Hotel(Model):
     name = CharField(max_length=100)
     address = CharField(max_length=100)
     rating = IntegerField(default=3)
-    description = TextField(blank=True,null=True)
+    description = TextField(blank=True, null=True)
+    # Добавляем null=True и blank=True для существующих записей
+    owner = ForeignKey('users.User', on_delete=CASCADE, related_name='hotels', null=True, blank=True)
     
     def __str__(self):
         return self.name
-    
+
+
 class RoomType(Model):
     """
     RoomType database (table) model.
@@ -34,18 +33,20 @@ class RoomType(Model):
     capacity = IntegerField()
     
     def __str__(self):
-        return  f"{self.name} до {self.capacity} человек"
-    
+        return f"{self.name} до {self.capacity} человек"
+
+
 class Room(Model):
     """
     Room database (table) model.
     """
     number = IntegerField(unique=True)
     price_per_night = IntegerField()
-    description = TextField(blank=True,null=True)
-    is_available = BooleanField(default = True)
-    hotel = ForeignKey(to=Hotel,on_delete=CASCADE)
-    RoomType = ForeignKey(to=RoomType,on_delete=CASCADE)
+    description = TextField(blank=True, null=True)
+    is_available = BooleanField(default=True)
+    hotel = ForeignKey(to=Hotel, on_delete=CASCADE)
+    # ИСПРАВЛЯЕМ: RoomType -> room_type
+    room_type = ForeignKey(to=RoomType, on_delete=CASCADE)
     
     def __str__(self):
-        return f" Номер {self.number} - {self.hotel.name}"
+        return f"Номер {self.number} - {self.hotel.name}"
