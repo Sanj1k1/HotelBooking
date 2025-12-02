@@ -510,6 +510,12 @@ class Faker:
         """
         ...
 
+    def bank(self) -> str:
+        """
+        Generate a bank name.
+        """
+        ...
+
     def bank_country(self) -> str:
         """
         Generate the bank provider's ISO 3166-1 alpha-2 country code.
@@ -3026,12 +3032,6 @@ class Faker:
         """
         ...
 
-    def bank(self) -> str:
-        """
-        Generate a bank name.
-        """
-        ...
-
     def large_company(self) -> str:
         """
         :example: 'SOCAR'
@@ -3762,7 +3762,7 @@ class Faker:
     def random_good_service_adjective_chain(self) -> str: ...
     def random_noun_ish_good_trait(self) -> str: ...
     def random_object_of_concern(self) -> str: ...
-    def ape_code(self, version: str | None = ...) -> str:
+    def ape_code(self, version: Optional[str] = ...) -> str:
         """
         Generate an APE code (also known as NAF code).
         It identify french company main branch of activity.

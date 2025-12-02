@@ -68,6 +68,7 @@ class HotelAdmin(ModelAdmin):
         'name',
         "address",
         'rating',
+        'owner',
     )
     
     list_per_page = 20

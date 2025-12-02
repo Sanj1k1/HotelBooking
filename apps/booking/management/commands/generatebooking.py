@@ -22,7 +22,14 @@ class Command(BaseCommand):
         """Сброс автоинкремента ID (SQLite)."""
         with connection.cursor() as cursor:
             cursor.execute("DELETE FROM sqlite_sequence WHERE name='booking_booking';")
+        self.stdout.write(self.style.WARNING("Booking ID sequence reset."))
     
+    def __clear_bookings(self):
+        """Очистка всех бронирований и сброс ID."""
+        Booking.objects.all().delete()
+        self.reset_booking_id_sequence()
+        self.stdout.write(self.style.WARNING("All bookings deleted."))
+        
     def __generate_booking(self) -> None:
         # Очистка таблицы и сброс ID
         Booking.objects.all().delete()
