@@ -6,6 +6,7 @@ from django.db.models import (
     TextField,
     BooleanField,
     ForeignKey,
+    FloatField,
     CASCADE,
 )
 
@@ -40,8 +41,8 @@ class Room(Model):
     """
     Room database (table) model.
     """
-    number = IntegerField(unique=True)
-    price_per_night = IntegerField()
+    number = IntegerField()
+    price_per_night = FloatField()
     description = TextField(blank=True, null=True)
     is_available = BooleanField(default=True)
     hotel = ForeignKey(to=Hotel, on_delete=CASCADE)
