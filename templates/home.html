@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<h1>Hotel Booking API Test</h1>
+<p>Welcome to the Hotel Booking system. Use this interface to test API endpoints.</p>
+
+<div class="api-test">
+    <h2>Quick API Tests</h2>
+    
+    <div class="form-group">
+        <button onclick="testPublicEndpoint()">Test Public Hotels Endpoint</button>
+        <button onclick="testProtectedEndpoint()">Test Protected Endpoint</button>
+        <button onclick="getMyProfile()">Get My Profile (Requires Login)</button>
+    </div>
+    
+    <div id="api-result"></div>
+</div>
+
+<script>
+    async function testPublicEndpoint() {
+        try {
+            const result = await callApi('hotels/', 'GET');
+            displayResult('Public Hotels API:', result);
+        } catch (error) {
+            displayResult('Error:', error.message, true);
+        }
+    }
+    
+    async function testProtectedEndpoint() {
+        try {
+            const result = await callApi('bookings/', 'GET');
+            displayResult('Protected Bookings API:', result);
+        } catch (error) {
+            displayResult('Error:', error.message, true);
+        }
+    }
+    
+    async function getMyProfile() {
+    try {
+        const result = await callApi('users/me/', 'GET');
+        displayResult('My Profile:', result);
+    } catch (error) {
+        displayResult('Error:', error.message, true);
+    }
+}
+    
+    function displayResult(title, data, isError = false) {
+        const resultDiv = document.getElementById('api-result');
+        resultDiv.innerHTML = `
+            <h3>${title}</h3>
+            <div class="api-response ${isError ? 'error' : ''}">
+                ${JSON.stringify(data, null, 2)}
+            </div>
+        `;
+    }
+</script>
+{% endblock %}
