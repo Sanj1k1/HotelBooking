@@ -51,9 +51,7 @@ class User(AbstractUser):
     
     FIRSTLASTNAMES_MAX_LENGTH = 100
     
-    # Убираем username, используем phone вместо него
     username = None
-    # Делаем phone уникальным и используем для аутентификации
     phone = CharField(
         max_length=20, 
         unique=True,
@@ -61,7 +59,6 @@ class User(AbstractUser):
         verbose_name=_("Phone Number")
     )
     
-    # Остальные поля
     first_name = CharField(max_length=FIRSTLASTNAMES_MAX_LENGTH, blank=False)
     last_name = CharField(max_length=FIRSTLASTNAMES_MAX_LENGTH, blank=False)
     email = CharField(max_length=50, unique=True, blank=False)

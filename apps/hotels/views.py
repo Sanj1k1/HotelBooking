@@ -1,5 +1,6 @@
 from rest_framework import viewsets, filters
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.permissions import IsAuthenticatedOrReadOnly 
 from .models import Hotel, RoomType, Room
 from .serializers import HotelSerializer, RoomTypeSerializer, RoomSerializer
 from apps.core.permissions import IsHotelOwnerOrReadOnly, IsAdminOrReadOnly
@@ -8,11 +9,12 @@ from apps.core.permissions import IsHotelOwnerOrReadOnly, IsAdminOrReadOnly
 class HotelViewSet(viewsets.ModelViewSet):
     """
     ViewSet for Hotel model.
-    Anyone can view hotels, only owners can edit/delete.
+    Anyone can view hotels, only authenticated users can create.
     """
-    queryset = Hotel.objects.all()
+    # OPTIMIZATION: select_related for owner
+    queryset = Hotel.objects.select_related('owner').all()
     serializer_class = HotelSerializer
-    permission_classes = [IsHotelOwnerOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['rating', 'owner']
     search_fields = ['name', 'address', 'description']
@@ -41,6 +43,7 @@ class RoomViewSet(viewsets.ModelViewSet):
     ViewSet for Room model.
     Anyone can view rooms, only admins/hotel owners can edit/delete.
     """
+    # OPTIMIZATION: select_related for hotel and room_type
     queryset = Room.objects.select_related('hotel', 'room_type').all()
     serializer_class = RoomSerializer
     permission_classes = [IsAdminOrReadOnly]

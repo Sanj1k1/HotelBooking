@@ -35,6 +35,23 @@ class Booking(models.Model):
         choices=STATUS_CHOICES, 
         default=PENDING
     )
+    payment = models.OneToOneField(
+        'payment.Payment',  # Ссылка на Payment модель
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='booking_payment'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)  # Можно добавить для отслеживания
+    updated_at = models.DateTimeField(auto_now=True)      
 
     def __str__(self):
         return f"Booking {self.id} by {self.user}"
+    
+    def save(self, *args, **kwargs):
+        """Можно добавить логику при сохранении"""
+        # Например, автоматически рассчитывать total_price если не указан
+        if not self.total_price and self.room and self.check_in and self.check_out:
+            nights = (self.check_out - self.check_in).days
+            self.total_price = self.room.price_per_night * nights
+        super().save(*args, **kwargs)

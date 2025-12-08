@@ -81,3 +81,18 @@ class IsReviewOwnerOrReadOnly(permissions.BasePermission):
         
         # Write permissions only to review author
         return obj.user == request.user
+    
+class IsAuthenticatedForCreate(permissions.BasePermission):
+    """
+    Custom permission: require authentication for create operations.
+    """
+    def has_permission(self, request, view):
+        # Allow GET, HEAD, OPTIONS for everyone
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        
+        # For POST (create), require authentication
+        if request.method == 'POST':
+            return request.user and request.user.is_authenticated
+        
+        return True
