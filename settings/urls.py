@@ -28,7 +28,7 @@ urlpatterns = [
     
     # API endpoints
     path('api/auth/', include('apps.authentication.urls')),
-    path('api/users/', include('apps.users.urls')),
+    path('api/', include('apps.users.urls')),
     path('api/', include('apps.hotels.urls')),
     path('api/',include('apps.booking.urls')),
     # Frontend pages

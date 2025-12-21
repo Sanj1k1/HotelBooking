@@ -1,19 +1,33 @@
-from rest_framework import serializers
-from .models import Hotel, RoomType, Room
+#DRF modules
+from rest_framework.serializers import (
+    SerializerMethodField,
+    ModelSerializer,
+    CharField,
+    )
+
+#Project modules
+from apps.hotels.models import Hotel, RoomType, Room
 from apps.users.serializers import UserSerializer
 
+#Python modules
 
-class HotelSerializer(serializers.ModelSerializer):
+class HotelSerializer(ModelSerializer):
     """Serializer for Hotel model."""
+    owner = SerializerMethodField()
     owner_info = UserSerializer(source='owner', read_only=True)
     
     class Meta:
         model = Hotel
         fields = ['id', 'name', 'address', 'rating', 'description', 'owner', 'owner_info']
         read_only_fields = ['id']
+        
+    def get_owner(self,obj):
+        if obj.owner:
+            return f"{obj.owner.first_name} {obj.owner.last_name}"
+        return None
 
 
-class RoomTypeSerializer(serializers.ModelSerializer):
+class RoomTypeSerializer(ModelSerializer):
     """Serializer for RoomType model."""
     class Meta:
         model = RoomType
@@ -21,10 +35,10 @@ class RoomTypeSerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
 
 
-class RoomSerializer(serializers.ModelSerializer):
+class RoomSerializer(ModelSerializer):
     """Serializer for Room model."""
-    hotel_name = serializers.CharField(source='hotel.name', read_only=True)
-    room_type_name = serializers.CharField(source='room_type.name', read_only=True)
+    hotel_name = CharField(source='hotel.name', read_only=True)
+    room_type_name = CharField(source='room_type.name', read_only=True)
     
     class Meta:
         model = Room
