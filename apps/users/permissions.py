@@ -1,7 +1,15 @@
 from rest_framework import permissions
 
+
 class IsSelfOrAdmin(permissions.BasePermission):
+    """
+    Permission to allow users to see/edit only themselves.
+    Admin can see/edit everyone.
+    """
     def has_object_permission(self, request, view, obj):
-        if request.user.role == obj.ROLE_ADMIN:
+        # Admin can do anything
+        if request.user.role == 'admin':
             return True
-        return obj.id == request.user.id
+        
+        # User can only access their own data
+        return obj == request.user
