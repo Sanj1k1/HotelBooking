@@ -1,57 +1,97 @@
-from rest_framework import viewsets, filters
-from django_filters.rest_framework import DjangoFilterBackend
-from .models import Hotel, RoomType, Room
-from .serializers import HotelSerializer, RoomTypeSerializer, RoomSerializer
+#DRF modules
+from rest_framework.viewsets import ModelViewSet,ViewSet
+from rest_framework.filters import SearchFilter,OrderingFilter
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.decorators import action
+from drf_spectacular.utils import extend_schema
+#Django modules
+from django.shortcuts import get_object_or_404
+
+#Python modules
+
+#Project modules
+from apps.hotels.models import Hotel, RoomType, Room
+from apps.hotels.serializers import HotelSerializer, RoomTypeSerializer, RoomSerializer
 from apps.core.permissions import IsHotelOwnerOrReadOnly, IsAdminOrReadOnly
 
 
-class HotelViewSet(viewsets.ModelViewSet):
-    """
-    ViewSet for Hotel model.
-    Anyone can view hotels, only owners can edit/delete.
-    """
-    queryset = Hotel.objects.all()
-    serializer_class = HotelSerializer
-    permission_classes = [IsHotelOwnerOrReadOnly]
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['rating', 'owner']
-    search_fields = ['name', 'address', 'description']
-    ordering_fields = ['name', 'rating']
+class HotelViewSet(ViewSet):
     
-    def perform_create(self, serializer):
-        """Set the current user as hotel owner when creating."""
-        serializer.save(owner=self.request.user)
+    @extend_schema(responses=HotelSerializer(many=True))
+    def list(self,request):
+        queryset = Hotel.objects.all()
+        serializer = HotelSerializer(queryset,many=True)
+        return Response(serializer.data)    
 
-
-class RoomTypeViewSet(viewsets.ModelViewSet):
-    """
-    ViewSet for RoomType model.
-    Anyone can view, only admins can edit/delete.
-    """
-    queryset = RoomType.objects.all()
-    serializer_class = RoomTypeSerializer
-    permission_classes = [IsAdminOrReadOnly]
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ['name']
-    ordering_fields = ['name', 'capacity']
-
-
-class RoomViewSet(viewsets.ModelViewSet):
-    """
-    ViewSet for Room model.
-    Anyone can view rooms, only admins/hotel owners can edit/delete.
-    """
-    queryset = Room.objects.select_related('hotel', 'room_type').all()
-    serializer_class = RoomSerializer
-    permission_classes = [IsAdminOrReadOnly]
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['hotel', 'room_type', 'is_available', 'price_per_night']
-    search_fields = ['description', 'hotel__name']
-    ordering_fields = ['number', 'price_per_night']
+    @extend_schema(responses=HotelSerializer)
+    def retrieve(self,request,pk=None):
+        queryset = Hotel.objects.all()
+        hotel = get_object_or_404(queryset,pk=pk)
+        serailizer = HotelSerializer(hotel)
+        return Response(serailizer.data)
     
-    def get_permissions(self):
-        """Custom permission logic for rooms."""
-        if self.action in ['update', 'partial_update', 'destroy']:
-            # For editing rooms, check if user is hotel owner
-            return [IsHotelOwnerOrReadOnly()]
-        return super().get_permissions()
+    @extend_schema(request=HotelSerializer, responses=HotelSerializer)
+    def create(self,request):
+        serializer = HotelSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)
+    
+    @extend_schema(request=HotelSerializer,responses=HotelSerializer)
+    def update(self,request,pk=None):
+        hotel = get_object_or_404(Hotel,pk=pk)
+        serializer = HotelSerializer(hotel,data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors)
+    
+    @extend_schema(request=HotelSerializer,responses=HotelSerializer)
+    def partial_update(self,request,pk=None):
+        hotel = get_object_or_404(Hotel,pk=pk)
+        serializer = HotelSerializer(hotel,data=request.data,partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors)
+
+    
+    @extend_schema(responses=None)
+    def destroy(self,request,pk=None):
+        hotel = get_object_or_404(Hotel,pk=pk)
+        hotel.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+
+class RoomTypeViewSet(ViewSet):
+    
+    @extend_schema(responses=RoomTypeSerializer(many=True))
+    def list(self,request):
+        queryset = RoomType.objects.all()
+        serializer = RoomTypeSerializer(queryset,many=True)
+        return Response(serializer.data)
+    
+    @extend_schema(request=RoomTypeSerializer,responses=RoomTypeSerializer)
+    def create(self,request):
+        serializer = RoomTypeSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors)
+
+    @extend_schema(request=RoomTypeSerializer,responses=RoomTypeSerializer)
+    def partial_update(self,request,pk=None):
+        roomtype = get_object_or_404(RoomType,pk=pk)
+        serializer = RoomTypeSerializer(roomtype,data=request.data,partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors)
+    
+    @extend_schema(responses=None)
+    def destroy(self,request,pk=None):
+        roomtype = get_object_or_404(RoomType,pk=pk)
+        roomtype.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

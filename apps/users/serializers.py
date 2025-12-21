@@ -1,10 +1,15 @@
-from rest_framework import serializers
+#Django REST Framework
+from rest_framework.serializers import ModelSerializer
+
+#Project Modules
+
+#Python Modules
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(ModelSerializer):
     """
     User serializer for safe data exposure.
     """

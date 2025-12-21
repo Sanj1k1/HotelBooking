@@ -404,7 +404,7 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.WARNING("Cleared all data and reset ID sequences."))
         
-    def __generate_hotels(self) -> None:
+    def __generate_hotels(self,rooms_per_hotel=20) -> None:
         """
         Generate hotels for testing data.
         """
@@ -429,26 +429,37 @@ class Command(BaseCommand):
                     user.set_password(owner_data["password"])
                     user.save()
             else:
-                user = None # если owner не указан
-            name:str = f"{hotel_data['name']}"
-            address: str = f"{hotel_data["address"]}"
-            rating: int = round(uniform(3.0,5.0),1)
-            created_hotels.append(
-                Hotel(
-                    name = name,
-                    address = address,
-                    rating = rating,
-                    owner = user,
-                )
+                user = None 
+            
+            hotel = Hotel.objects.create(
+                name=hotel_data["name"],
+                address=hotel_data["address"],
+                rating=round(uniform(3.0, 5.0), 1),
+                owner=user,
             )
-        Hotel.objects.bulk_create(created_hotels,ignore_conflicts=True)
-        hotels_after:int = Hotel.objects.count()
+
+            hotels_after:int = Hotel.objects.count()
+            
+            room_types = list(RoomType.objects.all())
+            rooms_created = []
+            for i in range(1,rooms_per_hotel+1):
+                rooms_created.append(
+                    Room(
+                        number=i,
+                        price_per_night=round(uniform(60, 350), 2),
+                        is_available=choice([True, False]),
+                        hotel=hotel,
+                        room_type=choice(room_types),
+                    )
+                )
+            Room.objects.bulk_create(rooms_created)
+            created_hotels.append(hotel)
         
         self.stdout.write(
             self.style.SUCCESS(
-                f"Created {hotels_after - hotels_before} hotels."
+                f"Created {len(created_hotels)} hotels with 20 rooms each."
+                )
             )
-        )
         
     def __generate_roomtype(self) -> None:
         """
@@ -464,37 +475,6 @@ class Command(BaseCommand):
             self.stdout.write(self.style.WARNING(f" Room types already exist ({existing_count} found)."))
             
     
-    def __generate_rooms(self,rooms_per_hotel:int= 100) -> None:
-        """
-        Generate rooms testing data for hotels.
-        """
-        hotels:Hotel = Hotel.objects.all()
-        room_types:list[RoomType] = list(RoomType.objects.all())
-        i:int 
-        total_rooms:int = 0
-        for hotel in hotels:
-            rooms_created:list[Room] = []
-            for i in range(1,rooms_per_hotel+1):
-                rooms_created.append(
-                    Room(
-                        number = str(i),
-                        price_per_night = round(uniform(60,350),2),
-                        is_available = True,
-                        hotel = hotel,
-                        room_type=choice(room_types),
-                    )
-                )
-            Room.objects.bulk_create(rooms_created,ignore_conflicts=True)
-            total_rooms +=len(rooms_created)
-            
-        self.stdout.write(
-            self.style.SUCCESS(
-                f"Created {total_rooms} rooms in hotels."
-            )
-        )    
-        
-        
-    
     def handle(self, *args: tuple[Any, ...], **kwargs: dict[str, Any]) -> None:
         """
         Command Entry point.
@@ -505,8 +485,7 @@ class Command(BaseCommand):
         self.__clear_data()
         
         self.__generate_roomtype()
-        self.__generate_hotels()
-        self.__generate_rooms(rooms_per_hotel=20)
+        self.__generate_hotels(rooms_per_hotel=20)
         self.stdout.write(
             "The whole process to generate data took: {} seconds".format(
                 (datetime.now() - start_time.now()).total_seconds()

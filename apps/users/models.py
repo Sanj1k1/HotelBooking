@@ -1,7 +1,7 @@
 #Python modules + Third party modules
 
 #Django modules
-from django.db.models import Model,CharField
+from django.db.models import Model,CharField,EmailField
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils.translation import gettext_lazy as _
 
@@ -64,7 +64,7 @@ class User(AbstractUser):
     # Остальные поля
     first_name = CharField(max_length=FIRSTLASTNAMES_MAX_LENGTH, blank=False)
     last_name = CharField(max_length=FIRSTLASTNAMES_MAX_LENGTH, blank=False)
-    email = CharField(max_length=50, unique=True, blank=False)
+    email = EmailField(max_length=50, unique=True, blank=False)
     role = CharField(max_length=20, choices=ROLE_CHOICES, default=ROLE_CUSTOMER)
     
     # Указываем, что поле для аутентификации - phone
