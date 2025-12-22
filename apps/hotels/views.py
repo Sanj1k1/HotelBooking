@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import action
 from drf_spectacular.utils import extend_schema
+from rest_framework.permissions import IsAuthenticated
 #Django modules
 from django.shortcuts import get_object_or_404
 
@@ -17,7 +18,8 @@ from apps.core.permissions import IsHotelOwnerOrReadOnly, IsAdminOrReadOnly
 
 
 class HotelViewSet(ViewSet):
-    
+    lookup_value_regex = r'[0-9]' #для теста нужен 
+    permission_classes = [IsAuthenticated, IsAdminOrReadOnly]
     @extend_schema(responses=HotelSerializer(many=True))
     def list(self,request):
         queryset = Hotel.objects.all()
@@ -64,8 +66,25 @@ class HotelViewSet(ViewSet):
         hotel.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
+    @action(detail=True,methods=["get"])
+    def rooms(self,request,pk=None):
+        hotel = get_object_or_404(Hotel,pk=pk)
+        rooms = Room.objects.filter(hotel=hotel)
+        serializer = RoomSerializer(rooms,many=True)
+        return Response(serializer.data)
+    
+    @action(detail=True, methods=["post"], url_path='add-room')
+    def add_room(self, request, pk=None):
+        hotel = get_object_or_404(Hotel, pk=pk)
+        serializer = RoomSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(hotel=hotel)
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
+    
 
 class RoomTypeViewSet(ViewSet):
+    lookup_field = "pk"
     
     @extend_schema(responses=RoomTypeSerializer(many=True))
     def list(self,request):

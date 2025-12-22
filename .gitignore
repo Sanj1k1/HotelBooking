@@ -1,3 +1,5 @@
+# Создаем новый .gitignore с объединением
+cat > .gitignore << 'EOF'
 # Virtual Environment
 .venv/
 venv/
@@ -57,3 +59,4 @@ htmlcov/
 
 # VS Code
 .vscode/
+EOF
