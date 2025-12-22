@@ -21,18 +21,19 @@ class HotelViewSet(ViewSet):
     lookup_value_regex = r'[0-9]' #для теста нужен 
     permission_classes = [IsAuthenticated, IsAdminOrReadOnly]
     @extend_schema(responses=HotelSerializer(many=True))
-    def list(self,request):
-        queryset = Hotel.objects.all()
-        serializer = HotelSerializer(queryset,many=True)
-        return Response(serializer.data)    
+    def list(self, request):
+        # OPTIMIZATION
+        hotels = Hotel.objects.select_related('owner').all()
+        serializer = HotelSerializer(hotels, many=True)
+        return Response(serializer.data)
 
     @extend_schema(responses=HotelSerializer)
-    def retrieve(self,request,pk=None):
-        queryset = Hotel.objects.all()
-        hotel = get_object_or_404(queryset,pk=pk)
-        serailizer = HotelSerializer(hotel)
-        return Response(serailizer.data)
-    
+    def retrieve(self, request, pk=None):
+        # OPTIMIZATION
+        hotel = get_object_or_404(Hotel.objects.select_related('owner'), pk=pk)
+        serializer = HotelSerializer(hotel)
+        return Response(serializer.data)
+        
     @extend_schema(request=HotelSerializer, responses=HotelSerializer)
     def create(self,request):
         serializer = HotelSerializer(data=request.data)
