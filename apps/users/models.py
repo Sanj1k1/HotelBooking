@@ -4,7 +4,7 @@
 from django.db.models import Model,CharField,EmailField
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils.translation import gettext_lazy as _
-
+from django.core.validators import RegexValidator
 #Project modules
 
 class CustomUserManager(BaseUserManager):
@@ -55,6 +55,7 @@ class User(AbstractUser):
     username = None
     # Делаем phone уникальным и используем для аутентификации
     phone = CharField(
+        validators=[RegexValidator(r'^\d{10,15}$', "Номер телефона должен быть цифровым")],
         max_length=20, 
         unique=True,
         blank=False,

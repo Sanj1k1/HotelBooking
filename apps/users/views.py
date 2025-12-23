@@ -28,7 +28,7 @@ class UserViewSet(ViewSet):
     def list(self, request):
         """
         GET /api/users/ - List users
-        Admin: all users, Others: only themselves
+        Only admin can see everyone
         """
         user = request.user
         
