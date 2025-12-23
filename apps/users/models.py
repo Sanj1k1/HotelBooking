@@ -51,9 +51,7 @@ class User(AbstractUser):
     
     FIRSTLASTNAMES_MAX_LENGTH = 100
     
-    # Убираем username, используем phone вместо него
     username = None
-    # Делаем phone уникальным и используем для аутентификации
     phone = CharField(
         max_length=20, 
         unique=True,
@@ -61,18 +59,14 @@ class User(AbstractUser):
         verbose_name=_("Phone Number")
     )
     
-    # Остальные поля
     first_name = CharField(max_length=FIRSTLASTNAMES_MAX_LENGTH, blank=False)
     last_name = CharField(max_length=FIRSTLASTNAMES_MAX_LENGTH, blank=False)
     email = EmailField(max_length=50, unique=True, blank=False)
     role = CharField(max_length=20, choices=ROLE_CHOICES, default=ROLE_CUSTOMER)
     
-    # Указываем, что поле для аутентификации - phone
     USERNAME_FIELD = 'phone'
-    # Обязательные поля при создании суперпользователя
     REQUIRED_FIELDS = ['email', 'first_name', 'last_name']
     
-    # Используем кастомный менеджер
     objects = CustomUserManager()
     
     def __str__(self):
