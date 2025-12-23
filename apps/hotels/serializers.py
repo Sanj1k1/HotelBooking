@@ -3,6 +3,9 @@ from rest_framework.serializers import (
     SerializerMethodField,
     ModelSerializer,
     CharField,
+    IntegerField,
+    PrimaryKeyRelatedField,
+    DecimalField
     )
 
 #Project modules
@@ -47,3 +50,14 @@ class RoomSerializer(ModelSerializer):
             'is_available', 'hotel', 'hotel_name', 'room_type', 'room_type_name'
         ]
         read_only_fields = ['id']
+        
+class RoomCreateSerializer(ModelSerializer):
+    class Meta:
+        model = Room
+        fields = [
+            'id', 'number', 'price_per_night', 'description', 
+            'is_available', 'room_type'
+        ]
+        read_only_fields = ['id']
+        
+

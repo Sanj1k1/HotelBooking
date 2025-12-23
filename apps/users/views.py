@@ -22,7 +22,7 @@ class UserViewSet(ViewSet):
     User ViewSet for managing users.
     Only admin can list all users, users can see only themselves.
     """
-    permission_classes = [IsAuthenticated, IsSelfOrAdmin]
+    permission_classes = [IsSelfOrAdmin]
     
     @extend_schema(responses=UserSerializer(many=True))
     def list(self, request):

@@ -13,13 +13,13 @@ from django.shortcuts import get_object_or_404
 
 #Project modules
 from apps.hotels.models import Hotel, RoomType, Room
-from apps.hotels.serializers import HotelSerializer, RoomTypeSerializer, RoomSerializer
-from apps.core.permissions import IsHotelOwnerOrReadOnly, IsAdminOrReadOnly
-
+from apps.hotels.serializers import HotelSerializer, RoomTypeSerializer, RoomSerializer,RoomCreateSerializer
+from apps.hotels.permissions import IsAdminOrManagerOrReadOnly
 
 class HotelViewSet(ViewSet):
-    lookup_value_regex = r'[0-9]' #для теста нужен 
-    permission_classes = [IsAuthenticated, IsAdminOrReadOnly]
+    lookup_value_regex = r'\d+' #для теста нужен 
+    permission_classes = [IsAdminOrManagerOrReadOnly]
+    
     @extend_schema(responses=HotelSerializer(many=True))
     def list(self,request):
         queryset = Hotel.objects.all()
@@ -37,13 +37,14 @@ class HotelViewSet(ViewSet):
     def create(self,request):
         serializer = HotelSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(owner=request.user)
             return Response(serializer.data)
         return Response(serializer.errors, status=400)
     
     @extend_schema(request=HotelSerializer,responses=HotelSerializer)
     def update(self,request,pk=None):
         hotel = get_object_or_404(Hotel,pk=pk)
+        self.check_object_permissions(request, hotel)
         serializer = HotelSerializer(hotel,data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -53,6 +54,7 @@ class HotelViewSet(ViewSet):
     @extend_schema(request=HotelSerializer,responses=HotelSerializer)
     def partial_update(self,request,pk=None):
         hotel = get_object_or_404(Hotel,pk=pk)
+        self.check_object_permissions(request, hotel)
         serializer = HotelSerializer(hotel,data=request.data,partial=True)
         if serializer.is_valid():
             serializer.save()
@@ -63,6 +65,7 @@ class HotelViewSet(ViewSet):
     @extend_schema(responses=None)
     def destroy(self,request,pk=None):
         hotel = get_object_or_404(Hotel,pk=pk)
+        self.check_object_permissions(request, hotel)
         hotel.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
@@ -73,14 +76,17 @@ class HotelViewSet(ViewSet):
         serializer = RoomSerializer(rooms,many=True)
         return Response(serializer.data)
     
+    @extend_schema(request=RoomCreateSerializer,responses=RoomSerializer,description="Создает новую комнату и привязывает её к текущему отелю")
     @action(detail=True, methods=["post"], url_path='add-room')
     def add_room(self, request, pk=None):
         hotel = get_object_or_404(Hotel, pk=pk)
-        serializer = RoomSerializer(data=request.data)
+        self.check_object_permissions(request, hotel)
+        serializer = RoomCreateSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(hotel=hotel)
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
+    
     
 
 class RoomTypeViewSet(ViewSet):
