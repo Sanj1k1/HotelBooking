@@ -1,25 +1,57 @@
 #DRF modules
-from rest_framework.serializers import CharField,ModelSerializer
-from rest_framework.serializers import ValidationError
+from rest_framework.serializers import (
+    CharField, 
+    ModelSerializer, 
+    ValidationError, 
+    IntegerField,
+    PrimaryKeyRelatedField
+)
+
 #Python modules
+from django.utils import timezone
 
 #Project modules
 from apps.booking.models import Booking
-from apps.hotels.models import Room
 
 class BookingSerializer(ModelSerializer):
     room_number = CharField(source='room.number', read_only=True)
     hotel_name = CharField(source='room.hotel.name', read_only=True)
+    total_price = IntegerField(read_only=True)# We do read_only, because in the default=0 model
+    payment = PrimaryKeyRelatedField(read_only=True) 
     
     class Meta:
         model = Booking
-        fields = ['id', 'user', 'room', 'room_number', 'hotel_name', 'check_in', 'check_out', 'status']
-        read_only_fields = ['id', 'user', 'room_number', 'hotel_name']
+        fields = ['id', 'user', 'room', 'room_number', 'hotel_name', 
+                'check_in', 'check_out', 'total_price', 'status', 'payment']
+        read_only_fields = ['id', 'user', 'room_number', 'hotel_name', 'total_price', 'payment']
         
-    def validate(self,attrs):
-        room = attrs['room']
-        check_in = attrs['check_in']
-        check_out = attrs['check_out']
+    def validate(self, attrs):
+        check_in = attrs.get('check_in')
+        check_out = attrs.get('check_out')
+        room = attrs.get('room')
 
+        if not check_in or not check_out:
+            return attrs
+            
         if check_out <= check_in:
-            raise ValidationError("Check-out date must be after check-in.")
+            raise ValidationError({"check_out": "The departure date must be later than the arrival date."})
+        
+        if check_in < timezone.now().date():
+            raise ValidationError({"check_in": "The arrival date cannot be in the past."})
+        
+        if room:
+            overlapping = Booking.objects.filter(
+                room=room,
+                check_out__gt=check_in,
+                check_in__lt=check_out,
+                status__in=['confirmed', 'pending']
+            ).exists()
+            
+            if overlapping:
+                raise ValidationError({"room": "The room is already booked for the specified dates"})
+        
+        return attrs
+    
+    def create(self, validated_data):
+        validated_data['user'] = self.context['request'].user
+        return super().create(validated_data)

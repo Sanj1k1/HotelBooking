@@ -35,6 +35,14 @@ class Booking(models.Model):
         choices=STATUS_CHOICES, 
         default=PENDING
     )
+    
+    payment = models.ForeignKey(
+        'payment.Payment', 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        related_name='bookings'
+    )
 
     def __str__(self):
         return f"Booking {self.id} by {self.user}"

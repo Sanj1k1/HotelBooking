@@ -39,6 +39,7 @@ DJANGO_AND_THIRD_PARTY_APPS = [
     'drf_spectacular',
     'rest_framework',
     'django_filters',
+    'debug_toolbar', 
 ]
 
 PROJECT_APPS = [ 
@@ -65,7 +66,7 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ],
     #Swagger
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',  # new
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 from datetime import timedelta
@@ -95,6 +96,7 @@ LOGOUT_REDIRECT_URL = '/'
 
 
 MIDDLEWARE = [
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -162,4 +164,20 @@ UNFOLD = {
             "link": reverse_lazy("admin:index"),
         },
     ]
+}
+
+# Debug Toolbar Settings
+INTERNAL_IPS = [
+    '127.0.0.1',
+    'localhost',
+]
+
+def show_toolbar(request):
+    return True
+
+DEBUG_TOOLBAR_CONFIG = {
+    'SHOW_TOOLBAR_CALLBACK': lambda request: True,
+    'RESULTS_CACHE_SIZE': 100,
+    'SHOW_COLLAPSED': True,
+    'SQL_WARNING_THRESHOLD': 100,
 }
