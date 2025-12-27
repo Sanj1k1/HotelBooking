@@ -30,7 +30,7 @@ class Command(BaseCommand):
         for i in range(1, users_count + 1):
             first_name = fake.first_name()
             last_name = fake.last_name()
-            email = f"{first_name.lower()[0]}.{last_name.lower()}@example.com"
+            email = f"{first_name.lower()[0]}.{last_name.lower()}@gmail.com"
             phone = f"+7{randint(7000000000, 7999999999)}"
 
             User.objects.create_user(

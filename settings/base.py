@@ -1,6 +1,6 @@
 #Python modules
 import os
-
+import sys
 #Other modules
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
@@ -39,7 +39,6 @@ DJANGO_AND_THIRD_PARTY_APPS = [
     'drf_spectacular',
     'rest_framework',
     'django_filters',
-    'debug_toolbar', 
 ]
 
 PROJECT_APPS = [ 
@@ -96,7 +95,6 @@ LOGOUT_REDIRECT_URL = '/'
 
 
 MIDDLEWARE = [
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -165,6 +163,19 @@ UNFOLD = {
         },
     ]
 }
+
+TESTING = "pytest" in sys.argv or 'test' in sys.argv
+
+if not TESTING:
+    INSTALLED_APPS += [
+        'debug_toolbar', 
+    ]
+    
+    MIDDLEWARE += [
+        'debug_toolbar.middleware.DebugToolbarMiddleware',
+    ]
+    
+    
 
 # Debug Toolbar Settings
 INTERNAL_IPS = [

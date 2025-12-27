@@ -1,3 +1,4 @@
+from settings.base import TESTING
 from django.contrib import admin
 from django.urls import path, include
 from django.http import JsonResponse
@@ -47,7 +48,8 @@ urlpatterns = [
     path('api/', include('apps.payment.urls')), 
 ]
 
-if settings.DEBUG:
+
+if not TESTING:
     import debug_toolbar
     urlpatterns = [
         path('__debug__/', include(debug_toolbar.urls)),

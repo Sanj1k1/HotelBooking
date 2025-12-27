@@ -1,7 +1,13 @@
 #Python modules + Third party modules
+from typing import Any,Optional,Dict
 
 #Django modules
-from django.db.models import Model,CharField,EmailField
+from django.db.models import (
+    Model,
+    CharField,
+    EmailField,
+    )
+
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import RegexValidator
@@ -10,7 +16,13 @@ from django.core.validators import RegexValidator
 class CustomUserManager(BaseUserManager):
     """Custom manager for User model with phone as username field."""
     
-    def create_user(self, phone, email, password=None, **extra_fields):
+    def create_user(
+        self, 
+        phone:str, 
+        email:str, 
+        password:Optional[str]=None, 
+        **extra_fields
+        ):
         """Create and save a regular User with the given phone and password."""
         if not phone:
             raise ValueError(_('The Phone field must be set'))
@@ -53,7 +65,7 @@ class User(AbstractUser):
     
     username = None
     phone = CharField(
-        validators=[RegexValidator(r'^\d{10,15}$', "Номер телефона должен быть цифровым")],
+        validators=[RegexValidator(r'^\d{10,15}$', "The phone number must contain only digits.")],
         max_length=20, 
         unique=True,
         blank=False,

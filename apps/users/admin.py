@@ -20,6 +20,7 @@ class UserAdmin(ModelAdmin):
         "email",
         "phone",
         'role',
+        "date_joined"
     )
     
     search_fields = (

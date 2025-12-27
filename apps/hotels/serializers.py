@@ -60,4 +60,3 @@ class RoomCreateSerializer(ModelSerializer):
         ]
         read_only_fields = ['id']
         
-

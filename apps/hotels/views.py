@@ -16,6 +16,7 @@ from apps.hotels.models import Hotel, RoomType, Room
 from apps.hotels.serializers import HotelSerializer, RoomTypeSerializer, RoomSerializer,RoomCreateSerializer
 from apps.hotels.permissions import IsAdminOrManagerOrReadOnly
 
+
 class HotelViewSet(ViewSet):
     lookup_value_regex = r'\d+' #для теста нужен 
     permission_classes = [IsAdminOrManagerOrReadOnly]
@@ -87,6 +88,15 @@ class HotelViewSet(ViewSet):
             serializer.save(hotel=hotel)
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
+    
+    @extend_schema(responses=HotelSerializer)
+    @action(detail=False,methods=["get"],url_path="my-hotels")
+    def my_hotels(self,request):
+        queryset = Hotel.objects.filter(owner=request.user).all()
+        serializer = HotelSerializer(queryset,many=True)
+        return Response(serializer.data)
+        
+        
     
     
 
