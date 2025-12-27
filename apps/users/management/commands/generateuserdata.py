@@ -31,7 +31,7 @@ class Command(BaseCommand):
             first_name = fake.first_name()
             last_name = fake.last_name()
             email = f"{first_name.lower()[0]}.{last_name.lower()}@gmail.com"
-            phone = f"+7{randint(7000000000, 7999999999)}"
+            phone = f"+7{randint(87000000000, 87999999999)}"
 
             User.objects.create_user(
             phone=phone,
