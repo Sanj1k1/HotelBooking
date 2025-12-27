@@ -14,9 +14,12 @@ from django.utils import timezone
 from apps.booking.models import Booking
 
 class BookingSerializer(ModelSerializer):
+    """
+    Booking serializer with validation logic and related field representation.
+    """
     room_number = CharField(source='room.number', read_only=True)
     hotel_name = CharField(source='room.hotel.name', read_only=True)
-    total_price = IntegerField(read_only=True)# We do read_only, because in the default=0 model
+    total_price = IntegerField(read_only=True)  # We do read_only, because in the default=0 model
     payment = PrimaryKeyRelatedField(read_only=True) 
     
     class Meta:
@@ -26,6 +29,9 @@ class BookingSerializer(ModelSerializer):
         read_only_fields = ['id', 'user', 'room_number', 'hotel_name', 'total_price', 'payment']
         
     def validate(self, attrs):
+        """
+        Validate booking dates and room availability.
+        """
         check_in = attrs.get('check_in')
         check_out = attrs.get('check_out')
         room = attrs.get('room')
@@ -53,5 +59,8 @@ class BookingSerializer(ModelSerializer):
         return attrs
     
     def create(self, validated_data):
+        """
+        Create booking with current user as owner.
+        """
         validated_data['user'] = self.context['request'].user
         return super().create(validated_data)

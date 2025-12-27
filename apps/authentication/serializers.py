@@ -6,6 +6,9 @@ User = get_user_model()
 
 
 class RegisterSerializer(serializers.ModelSerializer):
+    """
+    User registration serializer with password validation.
+    """
     password = serializers.CharField(
         write_only=True, 
         required=True, 
@@ -13,12 +16,11 @@ class RegisterSerializer(serializers.ModelSerializer):
     )
     password2 = serializers.CharField(write_only=True, required=True)
     
-    # Добавляем поле для выбора роли
     role = serializers.ChoiceField(
         choices=User.ROLE_CHOICES,
         default=User.ROLE_CUSTOMER,
         required=False,
-        write_only=True  # только для записи, не для чтения
+        write_only=True
     )
 
     class Meta:
@@ -31,6 +33,9 @@ class RegisterSerializer(serializers.ModelSerializer):
         }
 
     def validate(self, attrs):
+        """
+        Validate that passwords match.
+        """
         if attrs['password'] != attrs['password2']:
             raise serializers.ValidationError(
                 {"password": "Password fields don't match."}
@@ -38,9 +43,12 @@ class RegisterSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
+        """
+        Create user with selected role.
+        """
         validated_data.pop('password2')
         
-        # Получаем роль или используем дефолтную
+        # Get role or use default
         role = validated_data.pop('role', User.ROLE_CUSTOMER)
         
         user = User.objects.create_user(
@@ -49,7 +57,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             first_name=validated_data['first_name'],
             last_name=validated_data['last_name'],
             password=validated_data['password'],
-            role=role  # передаем выбранную роль
+            role=role  # pass selected role
         )
         
         return user

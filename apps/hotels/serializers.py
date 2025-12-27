@@ -52,6 +52,10 @@ class RoomSerializer(ModelSerializer):
         read_only_fields = ['id']
         
 class RoomCreateSerializer(ModelSerializer):
+    
+    """
+    Room creation serializer.
+    """
     class Meta:
         model = Room
         fields = [

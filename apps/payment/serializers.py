@@ -6,6 +6,9 @@ from apps.payment.models import Payment
 from apps.booking.models import Booking
 
 class PaymentSerializer(serializers.ModelSerializer):
+    """
+    Payment serializer with booking association logic.
+    """
     booking_id = serializers.IntegerField(write_only=True, required=False)
     
     class Meta:
@@ -14,11 +17,17 @@ class PaymentSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'user', 'created_at']
     
     def validate_amount(self, value):
+        """
+        Validate that payment amount is positive.
+        """
         if value <= 0:
             raise serializers.ValidationError("Amount must be greater than 0")
         return value
     
     def create(self, validated_data):
+        """
+        Create payment and associate with booking if booking_id provided.
+        """
         booking_id = validated_data.pop('booking_id', None)
         
         payment = Payment.objects.create(**validated_data)

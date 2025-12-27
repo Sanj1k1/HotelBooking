@@ -32,23 +32,35 @@ from apps.hotels.permissions import IsAdminOrManagerOrReadOnly
 
 
 class HotelViewSet(ViewSet):
+    """
+    Hotel management ViewSet with custom actions.
+    """
     lookup_value_regex: str = r'\d+'
     permission_classes: list[BasePermission] = [IsAdminOrManagerOrReadOnly]
 
     @extend_schema(responses=HotelSerializer(many=True))
     def list(self, request: DRFRequest, *args: tuple[Any, ...], **kwargs: dict[str, Any]) -> DRFResponse:
+        """
+        Get list of all hotels.
+        """
         hotels: QuerySet[Hotel] = Hotel.objects.select_related('owner').all()
         serializer: HotelSerializer = HotelSerializer(hotels, many=True)
         return DRFResponse(serializer.data, status=HTTP_200_OK)
 
     @extend_schema(responses=HotelSerializer)
     def retrieve(self, request: DRFRequest, pk: int = None, *args: tuple[Any, ...], **kwargs: dict[str, Any]) -> DRFResponse:
+        """
+        Get specific hotel by ID.
+        """
         hotel: Hotel = get_object_or_404(Hotel.objects.select_related('owner'), pk=pk)
         serializer: HotelSerializer = HotelSerializer(hotel)
         return DRFResponse(serializer.data, status=HTTP_200_OK)
 
     @extend_schema(request=HotelSerializer, responses=HotelSerializer)
     def create(self, request: DRFRequest, *args: tuple[Any, ...], **kwargs: dict[str, Any]) -> DRFResponse:
+        """
+        Create new hotel.
+        """
         serializer: HotelSerializer = HotelSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(owner=request.user)
@@ -57,6 +69,9 @@ class HotelViewSet(ViewSet):
 
     @extend_schema(request=HotelSerializer, responses=HotelSerializer)
     def update(self, request: DRFRequest, pk: int = None, *args: tuple[Any, ...], **kwargs: dict[str, Any]) -> DRFResponse:
+        """
+        Update hotel (full update).
+        """
         hotel: Hotel = get_object_or_404(Hotel, pk=pk)
         self.check_object_permissions(request, hotel)
         serializer: HotelSerializer = HotelSerializer(hotel, data=request.data)
@@ -67,6 +82,9 @@ class HotelViewSet(ViewSet):
 
     @extend_schema(request=HotelSerializer, responses=HotelSerializer)
     def partial_update(self, request: DRFRequest, pk: int = None, *args: tuple[Any, ...], **kwargs: dict[str, Any]) -> DRFResponse:
+        """
+        Update hotel (partial update).
+        """
         hotel: Hotel = get_object_or_404(Hotel, pk=pk)
         self.check_object_permissions(request, hotel)
         serializer: HotelSerializer = HotelSerializer(hotel, data=request.data, partial=True)
@@ -77,6 +95,9 @@ class HotelViewSet(ViewSet):
 
     @extend_schema(responses=None)
     def destroy(self, request: DRFRequest, pk: int = None, *args: tuple[Any, ...], **kwargs: dict[str, Any]) -> DRFResponse:
+        """
+        Delete hotel.
+        """
         hotel: Hotel = get_object_or_404(Hotel, pk=pk)
         self.check_object_permissions(request, hotel)
         hotel.delete()
@@ -84,6 +105,9 @@ class HotelViewSet(ViewSet):
 
     @action(detail=True, methods=["get"])
     def rooms(self, request: DRFRequest, pk: int = None, *args: tuple[Any, ...], **kwargs: dict[str, Any]) -> DRFResponse:
+        """
+        Get all rooms for specific hotel.
+        """
         hotel: Hotel = get_object_or_404(Hotel, pk=pk)
         rooms: QuerySet[Room] = Room.objects.filter(hotel=hotel)
         serializer: RoomSerializer = RoomSerializer(rooms, many=True)
@@ -92,6 +116,9 @@ class HotelViewSet(ViewSet):
     @extend_schema(request=RoomCreateSerializer, responses=RoomSerializer, description="Создает новую комнату и привязывает её к текущему отелю")
     @action(detail=True, methods=["post"], url_path='add-room')
     def add_room(self, request: DRFRequest, pk: int = None, *args: tuple[Any, ...], **kwargs: dict[str, Any]) -> DRFResponse:
+        """
+        Add new room to hotel.
+        """
         hotel: Hotel = get_object_or_404(Hotel, pk=pk)
         self.check_object_permissions(request, hotel)
         serializer: RoomCreateSerializer = RoomCreateSerializer(data=request.data)
@@ -103,22 +130,34 @@ class HotelViewSet(ViewSet):
     @extend_schema(responses=HotelSerializer)
     @action(detail=False, methods=["get"], url_path="my-hotels")
     def my_hotels(self, request: DRFRequest, *args: tuple[Any, ...], **kwargs: dict[str, Any]) -> DRFResponse:
+        """
+        Get hotels owned by current user.
+        """
         queryset: QuerySet[Hotel] = Hotel.objects.filter(owner=request.user).all()
         serializer: HotelSerializer = HotelSerializer(queryset, many=True)
         return DRFResponse(serializer.data, status=HTTP_200_OK)
 
 
 class RoomTypeViewSet(ViewSet):
+    """
+    RoomType management ViewSet.
+    """
     lookup_field = "pk"
 
     @extend_schema(responses=RoomTypeSerializer(many=True))
     def list(self, request: DRFRequest, *args: tuple[Any, ...], **kwargs: dict[str, Any]) -> DRFResponse:
+        """
+        Get list of all room types.
+        """
         queryset: QuerySet[RoomType] = RoomType.objects.all()
         serializer: RoomTypeSerializer = RoomTypeSerializer(queryset, many=True)
         return DRFResponse(serializer.data, status=HTTP_200_OK)
 
     @extend_schema(request=RoomTypeSerializer, responses=RoomTypeSerializer)
     def create(self, request: DRFRequest, *args: tuple[Any, ...], **kwargs: dict[str, Any]) -> DRFResponse:
+        """
+        Create new room type.
+        """
         serializer: RoomTypeSerializer = RoomTypeSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -127,6 +166,9 @@ class RoomTypeViewSet(ViewSet):
 
     @extend_schema(request=RoomTypeSerializer, responses=RoomTypeSerializer)
     def partial_update(self, request: DRFRequest, pk: int = None, *args: tuple[Any, ...], **kwargs: dict[str, Any]) -> DRFResponse:
+        """
+        Update room type (partial update).
+        """
         roomtype: RoomType = get_object_or_404(RoomType, pk=pk)
         serializer: RoomTypeSerializer = RoomTypeSerializer(roomtype, data=request.data, partial=True)
         if serializer.is_valid():
@@ -136,6 +178,9 @@ class RoomTypeViewSet(ViewSet):
 
     @extend_schema(responses=None)
     def destroy(self, request: DRFRequest, pk: int = None, *args: tuple[Any, ...], **kwargs: dict[str, Any]) -> DRFResponse:
+        """
+        Delete room type.
+        """
         roomtype: RoomType = get_object_or_404(RoomType, pk=pk)
         roomtype.delete()
         return DRFResponse(status=HTTP_204_NO_CONTENT)

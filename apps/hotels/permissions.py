@@ -1,6 +1,14 @@
+# From DRF modules
 from rest_framework.permissions import BasePermission,SAFE_METHODS
 
 class IsAdminOrManagerOrReadOnly(BasePermission):
+    """
+    Custom permission class that allows:
+    - Read access for authenticated users
+    - Full access for admin and manager roles
+    - Object-level write access for object owners (for non-admin/managers)
+    """
+    
     def has_permission(self, request, view):
         if request.method in SAFE_METHODS:
             return request.user.is_authenticated
