@@ -1,4 +1,7 @@
+#DRF modules
 from rest_framework import serializers
+
+#Django modules
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 
@@ -6,6 +9,8 @@ User = get_user_model()
 
 
 class RegisterSerializer(serializers.ModelSerializer):
+    """Serializer for user registration with password validation and role assignment."""
+    
     password = serializers.CharField(
         write_only=True, 
         required=True, 
@@ -13,12 +18,11 @@ class RegisterSerializer(serializers.ModelSerializer):
     )
     password2 = serializers.CharField(write_only=True, required=True)
     
-    # Добавляем поле для выбора роли
     role = serializers.ChoiceField(
         choices=User.ROLE_CHOICES,
         default=User.ROLE_CUSTOMER,
         required=False,
-        write_only=True  # только для записи, не для чтения
+        write_only=True 
     )
 
     class Meta:
@@ -31,6 +35,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         }
 
     def validate(self, attrs):
+        """Validate that both password fields match."""
         if attrs['password'] != attrs['password2']:
             raise serializers.ValidationError(
                 {"password": "Password fields don't match."}
@@ -38,6 +43,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
+        """Create a new user instance with the validated data."""
         validated_data.pop('password2')
         
         # Получаем роль или используем дефолтную

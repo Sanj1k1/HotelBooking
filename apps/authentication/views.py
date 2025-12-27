@@ -1,8 +1,13 @@
+#DRF modules
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+#Django modules
 from django.contrib.auth import get_user_model
+
+#Project modules
 from .serializers import RegisterSerializer
 
 User = get_user_model()
@@ -38,6 +43,8 @@ class RegisterView(generics.CreateAPIView):
     permission_classes = []  # Allow anyone to register
     
     def create(self, request, *args, **kwargs):
+        """Handle user registration and return user data without sensitive information."""
+        
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()

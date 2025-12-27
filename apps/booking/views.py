@@ -15,41 +15,66 @@ from apps.hotels.serializers import RoomSerializer
 
 
 class BookingViewSet(ViewSet):
+    """ViewSet for Booking model operations with user-specific access control."""
+    
     permission_classes = [IsAuthenticated]
     
     @extend_schema(responses=BookingSerializer(many=True))
     def list(self, request):
+        """Retrieve all bookings with optimized queries."""
         if request.user.is_staff:
-            bookings = Booking.objects.select_related('user', 'room', 'room__hotel', 'room__room_type').all()
+            bookings = Booking.objects.select_related(
+                'user', 'room', 'room__hotel', 'room__room_type'
+            ).all()
         else:
-            bookings = Booking.objects.select_related('user', 'room', 'room__hotel', 'room__room_type').filter(user=request.user)
+            bookings = Booking.objects.select_related(
+                'user', 'room', 'room__hotel', 'room__room_type'
+            ).filter(user=request.user)
         serializer = BookingSerializer(bookings, many=True)
         return Response(serializer.data)
     
     @extend_schema(responses=BookingSerializer)
     def retrieve(self, request, pk=None):
-        booking = get_object_or_404(Booking.objects.select_related('user', 'room', 'room__hotel', 'room__room_type'), pk=pk)
+        """Retrieve a specific booking by ID with permission check."""
+        booking = get_object_or_404(
+            Booking.objects.select_related('user', 'room', 'room__hotel', 'room__room_type'),
+            pk=pk
+        )
         if not request.user.is_staff and booking.user != request.user:
-            return Response({"detail": "No permission"}, status=status.HTTP_403_FORBIDDEN)
+            return Response(
+                {"detail": "No permission"},
+                status=status.HTTP_403_FORBIDDEN
+            )
         serializer = BookingSerializer(booking)
         return Response(serializer.data)
     
     @extend_schema(request=BookingSerializer, responses=BookingSerializer)
     def create(self, request):
+        """Create a new booking for the authenticated user."""
         serializer = BookingSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             booking = serializer.save()
-            return Response(BookingSerializer(booking).data, status=status.HTTP_201_CREATED)
+            return Response(
+                BookingSerializer(booking).data,
+                status=status.HTTP_201_CREATED
+            )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     @extend_schema(request=BookingSerializer, responses=BookingSerializer)
     def update(self, request, pk=None):
+        """Update an existing booking with permission and status validation."""
         booking = get_object_or_404(Booking, pk=pk)
         if not request.user.is_staff and booking.user != request.user:
-            return Response({"detail": "No permission"}, status=status.HTTP_403_FORBIDDEN)
+            return Response(
+                {"detail": "No permission"},
+                status=status.HTTP_403_FORBIDDEN
+            )
         
         if booking.status in ['completed', 'cancelled']:
-            return Response({"error": "Cannot modify"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Cannot modify"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         
         serializer = BookingSerializer(booking, data=request.data)
         if serializer.is_valid():
@@ -59,12 +84,19 @@ class BookingViewSet(ViewSet):
     
     @extend_schema(request=BookingSerializer, responses=BookingSerializer)
     def partial_update(self, request, pk=None):
+        """Partially update an existing booking with permission and status validation."""
         booking = get_object_or_404(Booking, pk=pk)
         if not request.user.is_staff and booking.user != request.user:
-            return Response({"detail": "No permission"}, status=status.HTTP_403_FORBIDDEN)
+            return Response(
+                {"detail": "No permission"},
+                status=status.HTTP_403_FORBIDDEN
+            )
         
         if booking.status in ['completed', 'cancelled']:
-            return Response({"error": "Cannot modify"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Cannot modify"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         
         serializer = BookingSerializer(booking, data=request.data, partial=True)
         if serializer.is_valid():
@@ -74,24 +106,38 @@ class BookingViewSet(ViewSet):
     
     @extend_schema(responses=None)
     def destroy(self, request, pk=None):
+        """Delete a booking (admin only)."""
         booking = get_object_or_404(Booking, pk=pk)
         if not request.user.is_staff:
-            return Response({"detail": "Admin only"}, status=status.HTTP_403_FORBIDDEN)
+            return Response(
+                {"detail": "Admin only"},
+                status=status.HTTP_403_FORBIDDEN
+            )
         booking.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
     @action(detail=True, methods=['post'], url_path='cancel')
     @extend_schema(responses=BookingSerializer)
     def cancel_booking(self, request, pk=None):
+        """Cancel a booking with status validation."""
         booking = get_object_or_404(Booking, pk=pk)
         if not request.user.is_staff and booking.user != request.user:
-            return Response({"detail": "No permission"}, status=status.HTTP_403_FORBIDDEN)
+            return Response(
+                {"detail": "No permission"},
+                status=status.HTTP_403_FORBIDDEN
+            )
         
         if booking.status == 'cancelled':
-            return Response({"error": "Already cancelled"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Already cancelled"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         
         if booking.status == 'completed':
-            return Response({"error": "Cannot cancel completed booking"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Cannot cancel completed booking"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         
         booking.status = 'cancelled'
         booking.save()
@@ -101,15 +147,21 @@ class BookingViewSet(ViewSet):
     @action(detail=False, methods=['get'], url_path='my-bookings')
     @extend_schema(responses=BookingSerializer(many=True))
     def my_bookings(self, request):
-        bookings = Booking.objects.select_related('user', 'room', 'room__hotel', 'room__room_type').filter(user=request.user)
+        """Retrieve all bookings of the authenticated user with optional status filter."""
+        bookings = Booking.objects.select_related(
+            'user', 'room', 'room__hotel', 'room__room_type'
+        ).filter(user=request.user)
+        
         status_filter = request.query_params.get('status')
         if status_filter:
             bookings = bookings.filter(status=status_filter)
+            
         serializer = BookingSerializer(bookings, many=True)
         return Response(serializer.data)
     
     @action(detail=False, methods=['get'], url_path='available-rooms')
     def available_rooms(self, request):
+        """Search for available rooms based on dates, hotel, and capacity filters."""
         check_in = request.query_params.get('check_in')
         check_out = request.query_params.get('check_out')
         hotel_id = request.query_params.get('hotel_id')
